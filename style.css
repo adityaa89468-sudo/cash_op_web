@@ -408,6 +408,15 @@ body {
 .new-card-btn:hover {
     background: #45a049;
 }
+
+.ad-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.ad-container ins {
+    max-width: 100%;
+}
 .container {
     background: white;
     padding: 40px;
