@@ -4,83 +4,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Home - Earn Online</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>EarnHub - Home</title>
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <h1>Welcome to EarnHub</h1>
-            <div class="user-info">
-                <span id="user-greeting">Hi User!</span>
-                <button onclick="logout()" class="logout-btn">Logout</button>
-            </div>
-        </div>
-    </header>
-    <main>
-        <div class="dashboard">
-            <div class="balance-card">
-                <h2>Your Balance</h2>
-                <p class="balance">$0.00</p>
-            </div>
-            <div class="tasks-completed">
-                <h2>Tasks Completed</h2>
-                <p class="count">0</p>
-            </div>
-        </div>
-        <div class="earning-options">
-            <h2>Earn Money Online</h2>
-            <div class="options-grid">
-                <div class="option-card">
-                    <div class="icon">🎫</div>
-                    <h3>Scratch Cards</h3>
-                    <p>Scratch and win instant rewards!</p>
-                    <button class="earn-btn">Start Scratching</button>
-                </div>
-                <div class="option-card">
-                    <div class="icon">📝</div>
-                    <h3>Surveys</h3>
-                    <p>Share your opinions and earn cash.</p>
-                    <button class="earn-btn">Take Survey</button>
-                </div>
-                <div class="option-card">
-                    <div class="icon">🎡</div>
-                    <h3>Spin Wheel</h3>
-                    <p>Spin the wheel for a chance to win big!</p>
-                    <button class="earn-btn">Spin Now</button>
-                </div>
-                <div class="option-card">
-                    <div class="icon">🔍</div>
-                    <h3>Captcha Solving</h3>
-                    <p>Solve captchas and get paid per task.</p>
-                    <button class="earn-btn">Solve Captchas</button>
-                </div>
-                <div class="option-card">
-                    <div class="icon">✍️</div>
-                    <h3>Paragraph Writing</h3>
-                    <p>Write articles and earn per word.</p>
-                    <button class="earn-btn">Start Writing</button>
-                </div>
-                <div class="option-card">
-                    <div class="icon">🎮</div>
-                    <h3>Games</h3>
-                    <p>Play fun games and earn rewards.</p>
-                    <button class="earn-btn">Play Games</button>
-                </div>
-                <div class="option-card">
-                    <div class="icon">📱</div>
-                    <h3>App Downloads</h3>
-                    <p>Download apps and get paid.</p>
-                    <button class="earn-btn">Download Apps</button>
-                </div>
-                <div class="option-card">
-                    <div class="icon">🔗</div>
-                    <h3>Referral Program</h3>
-                    <p>Invite friends and earn commissions.</p>
-                    <button class="earn-btn">Refer Friends</button>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="app-title">EarnHub</h1>
+                <div class="user-menu">
+                    <span id="user-greeting">Hi User</span>
+                    <button onclick="logout()" class="icon-btn">
+                        <span class="material-icons">logout</span>
+                    </button>
                 </div>
             </div>
-        </div>
-    </main>
+        </header>
+        
+        <main class="app-main">
+            <div class="balance-section">
+                <div class="balance-card">
+                    <div class="balance-icon">
+                        <span class="material-icons">account_balance_wallet</span>
+                    </div>
+                    <div class="balance-info">
+                        <p class="balance-label">Total Balance</p>
+                        <p class="balance-amount">$0.00</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="earn-section">
+                <h2 class="section-title">Earn Money</h2>
+                <div class="earn-grid">
+                    <div class="earn-item" onclick="startTask('scratch')">
+                        <div class="earn-icon">
+                            <span class="material-icons">card_giftcard</span>
+                        </div>
+                        <p class="earn-label">Scratch</p>
+                    </div>
+                    <div class="earn-item" onclick="startTask('survey')">
+                        <div class="earn-icon">
+                            <span class="material-icons">assignment</span>
+                        </div>
+                        <p class="earn-label">Survey</p>
+                    </div>
+                    <div class="earn-item" onclick="startTask('spin')">
+                        <div class="earn-icon">
+                            <span class="material-icons">refresh</span>
+                        </div>
+                        <p class="earn-label">Spin</p>
+                    </div>
+                    <div class="earn-item" onclick="startTask('captcha')">
+                        <div class="earn-icon">
+                            <span class="material-icons">security</span>
+                        </div>
+                        <p class="earn-label">Captcha</p>
+                    </div>
+                    <div class="earn-item" onclick="startTask('writing')">
+                        <div class="earn-icon">
+                            <span class="material-icons">edit</span>
+                        </div>
+                        <p class="earn-label">Writing</p>
+                    </div>
+                    <div class="earn-item" onclick="startTask('games')">
+                        <div class="earn-icon">
+                            <span class="material-icons">games</span>
+                        </div>
+                        <p class="earn-label">Games</p>
+                    </div>
+                    <div class="earn-item" onclick="startTask('apps')">
+                        <div class="earn-icon">
+                            <span class="material-icons">get_app</span>
+                        </div>
+                        <p class="earn-label">Apps</p>
+                    </div>
+                    <div class="earn-item" onclick="startTask('referral')">
+                        <div class="earn-icon">
+                            <span class="material-icons">share</span>
+                        </div>
+                        <p class="earn-label">Refer</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script>
@@ -100,7 +109,8 @@
 
         auth.onAuthStateChanged((user) => {
             if (user) {
-                document.getElementById('user-greeting').textContent = `Hi ${user.email.split('@')[0]}!`;
+                const name = user.email.split('@')[0];
+                document.getElementById('user-greeting').textContent = `Hi ${name}`;
             } else {
                 window.location.href = 'login_signup.html';
             }
@@ -112,12 +122,9 @@
             });
         }
 
-        // Placeholder for earn buttons - in a real app, these would navigate to specific pages
-        document.querySelectorAll('.earn-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                alert('This feature is coming soon! Stay tuned.');
-            });
-        });
+        function startTask(taskType) {
+            alert(`${taskType.charAt(0).toUpperCase() + taskType.slice(1)} feature coming soon!`);
+        }
     </script>
 </body>
 </html>
