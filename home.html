@@ -4,14 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Home</title>
+    <title>Home - Earn Online</title>
 </head>
 <body>
-    <div class="container">
-        <h1>hii user</h1>
-        <p>Welcome to your app!</p>
-        <button onclick="logout()">Logout</button>
-    </div>
+    <header>
+        <div class="header-content">
+            <h1>Welcome to EarnHub</h1>
+            <div class="user-info">
+                <span id="user-greeting">Hi User!</span>
+                <button onclick="logout()" class="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="dashboard">
+            <div class="balance-card">
+                <h2>Your Balance</h2>
+                <p class="balance">$0.00</p>
+            </div>
+            <div class="tasks-completed">
+                <h2>Tasks Completed</h2>
+                <p class="count">0</p>
+            </div>
+        </div>
+        <div class="earning-options">
+            <h2>Earn Money Online</h2>
+            <div class="options-grid">
+                <div class="option-card">
+                    <div class="icon">🎫</div>
+                    <h3>Scratch Cards</h3>
+                    <p>Scratch and win instant rewards!</p>
+                    <button class="earn-btn">Start Scratching</button>
+                </div>
+                <div class="option-card">
+                    <div class="icon">📝</div>
+                    <h3>Surveys</h3>
+                    <p>Share your opinions and earn cash.</p>
+                    <button class="earn-btn">Take Survey</button>
+                </div>
+                <div class="option-card">
+                    <div class="icon">🎡</div>
+                    <h3>Spin Wheel</h3>
+                    <p>Spin the wheel for a chance to win big!</p>
+                    <button class="earn-btn">Spin Now</button>
+                </div>
+                <div class="option-card">
+                    <div class="icon">🔍</div>
+                    <h3>Captcha Solving</h3>
+                    <p>Solve captchas and get paid per task.</p>
+                    <button class="earn-btn">Solve Captchas</button>
+                </div>
+                <div class="option-card">
+                    <div class="icon">✍️</div>
+                    <h3>Paragraph Writing</h3>
+                    <p>Write articles and earn per word.</p>
+                    <button class="earn-btn">Start Writing</button>
+                </div>
+                <div class="option-card">
+                    <div class="icon">🎮</div>
+                    <h3>Games</h3>
+                    <p>Play fun games and earn rewards.</p>
+                    <button class="earn-btn">Play Games</button>
+                </div>
+                <div class="option-card">
+                    <div class="icon">📱</div>
+                    <h3>App Downloads</h3>
+                    <p>Download apps and get paid.</p>
+                    <button class="earn-btn">Download Apps</button>
+                </div>
+                <div class="option-card">
+                    <div class="icon">🔗</div>
+                    <h3>Referral Program</h3>
+                    <p>Invite friends and earn commissions.</p>
+                    <button class="earn-btn">Refer Friends</button>
+                </div>
+            </div>
+        </div>
+    </main>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script>
@@ -30,7 +99,9 @@
         const auth = firebase.auth();
 
         auth.onAuthStateChanged((user) => {
-            if (!user) {
+            if (user) {
+                document.getElementById('user-greeting').textContent = `Hi ${user.email.split('@')[0]}!`;
+            } else {
                 window.location.href = 'login_signup.html';
             }
         });
@@ -40,6 +111,13 @@
                 window.location.href = 'login_signup.html';
             });
         }
+
+        // Placeholder for earn buttons - in a real app, these would navigate to specific pages
+        document.querySelectorAll('.earn-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                alert('This feature is coming soon! Stay tuned.');
+            });
+        });
     </script>
 </body>
 </html>
