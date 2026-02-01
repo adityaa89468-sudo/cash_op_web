@@ -1,0 +1,39 @@
+type User @table {
+  username: String!
+  passwordHash: String!
+  email: String!
+  createdAt: Timestamp!
+  totalCoins: Int!
+  lastScratchDate: Date
+  lastSpinDate: Date
+}
+
+type Activity @table {
+  user: User!
+  activityType: String!
+  coinsEarned: Int!
+  createdAt: Timestamp!
+  details: String
+}
+
+type WithdrawalRequest @table {
+  user: User!
+  amountCoins: Int!
+  amountCurrency: Float!
+  paymentMethod: String!
+  status: String!
+  createdAt: Timestamp!
+  paymentDetails: String
+  processedAt: Timestamp
+}
+
+type ScratchCard @table {
+  date: Date!
+  maxCoins: Int!
+}
+
+type SpinSlot @table {
+  slotNumber: Int!
+  coinsAwarded: Int!
+  probability: Float
+}
