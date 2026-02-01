@@ -33,6 +33,7 @@
         <div id="message" class="message"></div>
     </div>
     <script>
+        console.log('Login/Signup page loaded');
         // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCKW4dfNxG_7F-K8jO31i2aS8eI1Vv-SYE",
@@ -45,7 +46,9 @@
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
+        console.log('Firebase app initialized');
         const auth = firebase.auth();
+        console.log('Firebase auth initialized');
 
         const loginToggle = document.getElementById('login-toggle');
         const signupToggle = document.getElementById('signup-toggle');
@@ -80,10 +83,17 @@
 
         document.getElementById('authForm').addEventListener('submit', function(event) {
             event.preventDefault();
-            const email = document.getElementById('email').value;
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
             messageDiv.textContent = 'Processing...';
             messageDiv.className = 'message loading';
+
+            if (!email || !password) {
+                messageDiv.textContent = 'Please fill in email and password.';
+                messageDiv.className = 'message error';
+                return;
+            }
 
             if (isLogin) {
                 console.log('Attempting login for:', email);
@@ -98,7 +108,11 @@
                         messageDiv.className = 'message error';
                     });
             } else {
-                const confirmPassword = document.getElementById('confirm-password').value;
+                if (!confirmPassword) {
+                    messageDiv.textContent = 'Please confirm your password.';
+                    messageDiv.className = 'message error';
+                    return;
+                }
                 if (password !== confirmPassword) {
                     messageDiv.textContent = 'Passwords do not match.';
                     messageDiv.className = 'message error';
