@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Cash Op - Scratch Card</title>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <button onclick="goBack()" class="icon-btn back-btn">
+                    <span class="material-icons">arrow_back</span>
+                </button>
+                <h1 class="app-title">Scratch Card</h1>
+                <div></div>
+            </div>
+        </header>
+        
+        <main class="app-main">
+            <div class="scratch-section">
+                <div class="scratch-card">
+                    <div class="scratch-overlay" id="scratchOverlay">
+                        <p>Scratch here to reveal your prize!</p>
+                    </div>
+                    <div class="prize-reveal" id="prizeReveal">
+                        <div class="prize-icon">
+                            <span class="material-icons" id="prizeIcon">card_giftcard</span>
+                        </div>
+                        <p class="prize-text" id="prizeText">You won $0.50!</p>
+                        <button class="claim-btn" onclick="claimPrize()">Claim Prize</button>
+                    </div>
+                </div>
+                <p class="instructions">Tap and hold to scratch the card</p>
+                <button class="new-card-btn" onclick="newCard()">Get New Card ($0.10)</button>
+            </div>
+        </main>
+    </div>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKW4dfNxG_7F-K8jO31i2aS8eI1Vv-SYE",
+            authDomain: "cash-op-web.firebaseapp.com",
+            projectId: "cash-op-web",
+            storageBucket: "cash-op-web.firebasestorage.app",
+            messagingSenderId: "182361117624",
+            appId: "1:182361117624:web:4a38a21b441acdb8c1b54d"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'login_signup.html';
+            }
+        });
+
+        const overlay = document.getElementById('scratchOverlay');
+        const reveal = document.getElementById('prizeReveal');
+        let isScratched = false;
+        let currentPrize = 0;
+
+        // Simple scratch simulation
+        overlay.addEventListener('touchstart', startScratch);
+        overlay.addEventListener('mousedown', startScratch);
+
+        function startScratch(e) {
+            e.preventDefault();
+            if (!isScratched) {
+                // Simulate scratching
+                setTimeout(() => {
+                    scratchCard();
+                }, 1000); // 1 second scratch time
+            }
+        }
+
+        function scratchCard() {
+            isScratched = true;
+            overlay.style.display = 'none';
+            reveal.style.display = 'block';
+            
+            // Random prize
+            const prizes = [
+                { amount: 0.10, icon: 'card_giftcard', text: 'You won $0.10!' },
+                { amount: 0.25, icon: 'card_giftcard', text: 'You won $0.25!' },
+                { amount: 0.50, icon: 'card_giftcard', text: 'You won $0.50!' },
+                { amount: 1.00, icon: 'card_giftcard', text: 'You won $1.00!' },
+                { amount: 0.00, icon: 'sentiment_dissatisfied', text: 'Better luck next time!' }
+            ];
+            
+            const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
+            currentPrize = randomPrize.amount;
+            
+            document.getElementById('prizeIcon').textContent = randomPrize.icon;
+            document.getElementById('prizeText').textContent = randomPrize.text;
+        }
+
+        function claimPrize() {
+            alert(`Prize of $${currentPrize} claimed! (This would update your balance in a real app)`);
+            // In a real app, update user's balance in database
+            window.location.href = 'home.html';
+        }
+
+        function newCard() {
+            // In a real app, deduct cost from balance
+            alert('New card purchased for $0.10 (would deduct from balance)');
+            resetCard();
+        }
+
+        function resetCard() {
+            isScratched = false;
+            overlay.style.display = 'flex';
+            reveal.style.display = 'none';
+            currentPrize = 0;
+        }
+
+        function goBack() {
+            window.location.href = 'home.html';
+        }
+    </script>
+</body>
+</html>
