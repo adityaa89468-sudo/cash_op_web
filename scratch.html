@@ -59,6 +59,9 @@
         auth.onAuthStateChanged((user) => {
             if (!user) {
                 window.location.href = 'login_signup.html';
+            } else {
+                showAd();
+                checkDailyScratch();
             }
         });
 
@@ -66,6 +69,24 @@
         const reveal = document.getElementById('prizeReveal');
         let isScratched = false;
         let currentPrize = 0;
+
+        function showAd() {
+            // Simulate watching an ad
+            alert('Please watch this short ad to continue... (Simulated ad - click OK to proceed)');
+        }
+
+        function checkDailyScratch() {
+            const today = new Date().toDateString();
+            const lastScratch = localStorage.getItem('lastScratch');
+            
+            if (lastScratch === today) {
+                // Already scratched today
+                overlay.innerHTML = '<p>You have already scratched today. Come back tomorrow!</p>';
+                overlay.style.pointerEvents = 'none';
+                document.querySelector('.new-card-btn').style.display = 'none';
+                document.querySelector('.instructions').textContent = 'Daily scratch limit reached';
+            }
+        }
 
         // Simple scratch simulation
         overlay.addEventListener('touchstart', startScratch);
@@ -86,32 +107,38 @@
             overlay.style.display = 'none';
             reveal.style.display = 'block';
             
-            // Random prize
+            // Random prize from specified amounts
             const prizes = [
-                { amount: 0.10, icon: 'card_giftcard', text: 'You won $0.10!' },
-                { amount: 0.25, icon: 'card_giftcard', text: 'You won $0.25!' },
-                { amount: 0.50, icon: 'card_giftcard', text: 'You won $0.50!' },
-                { amount: 1.00, icon: 'card_giftcard', text: 'You won $1.00!' },
-                { amount: 0.00, icon: 'sentiment_dissatisfied', text: 'Better luck next time!' }
+                { amount: 0.001, text: 'You won ₹0.001!' },
+                { amount: 0.005, text: 'You won ₹0.005!' },
+                { amount: 0.01, text: 'You won ₹0.01!' },
+                { amount: 0.02, text: 'You won ₹0.02!' },
+                { amount: 0.03, text: 'You won ₹0.03!' },
+                { amount: 0.04, text: 'You won ₹0.04!' },
+                { amount: 0.05, text: 'You won ₹0.05!' },
+                { amount: 0.1, text: 'You won ₹0.1!' },
+                { amount: 0.2, text: 'You won ₹0.2!' }
             ];
             
             const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
             currentPrize = randomPrize.amount;
             
-            document.getElementById('prizeIcon').textContent = randomPrize.icon;
+            document.getElementById('prizeIcon').textContent = 'card_giftcard';
             document.getElementById('prizeText').textContent = randomPrize.text;
+            
+            // Mark as scratched today
+            const today = new Date().toDateString();
+            localStorage.setItem('lastScratch', today);
         }
 
         function claimPrize() {
-            alert(`Prize of $${currentPrize} claimed! (This would update your balance in a real app)`);
+            alert(`Prize of ₹${currentPrize} claimed! (This would update your balance in a real app)`);
             // In a real app, update user's balance in database
             window.location.href = 'home.html';
         }
 
         function newCard() {
-            // In a real app, deduct cost from balance
-            alert('New card purchased for $0.10 (would deduct from balance)');
-            resetCard();
+            alert('You can only scratch once per day!');
         }
 
         function resetCard() {
