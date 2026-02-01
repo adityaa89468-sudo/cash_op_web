@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_PUBLISHER_ID" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9364231981895017" crossorigin="anonymous"></script>
     <title>Cash Op - Scratch Card</title>
 </head>
 <body>
@@ -42,7 +42,7 @@
                 <div class="ad-container">
                     <ins class="adsbygoogle"
                          style="display:block"
-                         data-ad-client="ca-pub-YOUR_PUBLISHER_ID"
+                         data-ad-client="ca-pub-9364231981895017"
                          data-ad-slot="YOUR_AD_SLOT_ID"
                          data-ad-format="auto"
                          data-full-width-responsive="true"></ins>
@@ -56,6 +56,7 @@
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script>
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -70,13 +71,14 @@
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
+        const db = firebase.firestore();
 
         auth.onAuthStateChanged((user) => {
             if (!user) {
                 window.location.href = 'login_signup.html';
             } else {
                 showAd();
-                checkDailyScratch();
+                checkDailyScratch(user.uid);
             }
         });
 
@@ -90,17 +92,24 @@
             alert('Please watch this short ad to continue... (Simulated ad - click OK to proceed)');
         }
 
-        function checkDailyScratch() {
+        function checkDailyScratch(uid) {
             const today = new Date().toDateString();
-            const lastScratch = localStorage.getItem('lastScratch');
             
-            if (lastScratch === today) {
-                // Already scratched today
-                overlay.innerHTML = '<p>You have already scratched today. Come back tomorrow!</p>';
-                overlay.style.pointerEvents = 'none';
-                document.querySelector('.new-card-btn').style.display = 'none';
-                document.querySelector('.instructions').textContent = 'Daily scratch limit reached';
-            }
+            // Check Firestore for last scratch
+            db.collection('users').doc(uid).get().then((doc) => {
+                if (doc.exists) {
+                    const lastScratch = doc.data().lastScratch;
+                    if (lastScratch === today) {
+                        // Already scratched today
+                        overlay.innerHTML = '<p>You have already scratched today. Come back tomorrow!</p>';
+                        overlay.style.pointerEvents = 'none';
+                        document.querySelector('.new-card-btn').style.display = 'none';
+                        document.querySelector('.instructions').textContent = 'Daily scratch limit reached';
+                    }
+                }
+            }).catch((error) => {
+                console.error('Error checking daily scratch:', error);
+            });
         }
 
         // Simple scratch simulation
@@ -141,9 +150,18 @@
             document.getElementById('prizeIcon').textContent = 'card_giftcard';
             document.getElementById('prizeText').textContent = randomPrize.text;
             
-            // Mark as scratched today
+            // Save to Firestore
+            const uid = auth.currentUser.uid;
             const today = new Date().toDateString();
-            localStorage.setItem('lastScratch', today);
+            
+            db.collection('users').doc(uid).update({
+                lastScratch: today,
+                balance: firebase.firestore.FieldValue.increment(currentPrize)
+            }).then(() => {
+                console.log('Prize added to balance');
+            }).catch((error) => {
+                console.error('Error updating balance:', error);
+            });
         }
 
         function claimPrize() {
