@@ -7,8 +7,11 @@
   "dataconnect": {
     "source": "dataconnect"
   },
+  "firestore": {
+    "rules": "firestore.rules"
+  },
   "hosting": {
-    "public": "public",
+    "public": ".",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -17,7 +20,7 @@
     "rewrites": [
       {
         "source": "**",
-        "destination": "/index.html"
+        "destination": "/login_signup.html"
       }
     ]
   }

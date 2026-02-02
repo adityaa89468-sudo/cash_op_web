@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9364231981895017" crossorigin="anonymous"></script>
+    <meta name="google-site-verification" content="ca-pub-9364231981895017" />
+    <meta name="google-adsense-account" content="ca-pub-9364231981895017">
     <title>Cash Op - Scratch Card</title>
 </head>
 <body>
@@ -150,23 +153,47 @@
             document.getElementById('prizeIcon').textContent = 'card_giftcard';
             document.getElementById('prizeText').textContent = randomPrize.text;
             
-            // Save to Firestore
+            // Update balance in Firestore
             const uid = auth.currentUser.uid;
             const today = new Date().toDateString();
             
-            db.collection('users').doc(uid).update({
-                lastScratch: today,
-                balance: firebase.firestore.FieldValue.increment(currentPrize)
+            // Read current balance, then update it
+            const userRef = db.collection('users').doc(uid);
+            userRef.get().then((doc) => {
+                let currentBalance = 0;
+                if (doc.exists) {
+                    currentBalance = doc.data().balance || 0;
+                } else {
+                    // Create user document if it doesn't exist
+                    return userRef.set({
+                        balance: 0,
+                        email: auth.currentUser.email,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(() => {
+                        return userRef.get(); // Get the newly created document
+                    });
+                }
+                return Promise.resolve(doc);
+            }).then((doc) => {
+                const currentBalance = doc.data().balance || 0;
+                const newBalance = currentBalance + currentPrize;
+                
+                // Update balance and last scratch
+                return userRef.update({
+                    lastScratch: today,
+                    balance: newBalance
+                });
             }).then(() => {
-                console.log('Prize added to balance');
+                console.log('Prize added to balance successfully');
+                alert(`Congratulations! ₹${currentPrize} has been added to your balance!`);
             }).catch((error) => {
                 console.error('Error updating balance:', error);
+                alert('Error updating balance. Please try again.');
             });
         }
 
         function claimPrize() {
-            alert(`Prize of ₹${currentPrize} claimed! (This would update your balance in a real app)`);
-            // In a real app, update user's balance in database
+            // Balance is already updated when scratching, just redirect to home
             window.location.href = 'home.html';
         }
 
@@ -183,6 +210,19 @@
 
         function goBack() {
             window.location.href = 'home.html';
+        }
+
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
         }
     </script>
 </body>
