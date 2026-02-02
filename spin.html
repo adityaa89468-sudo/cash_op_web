@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9364231981895017" crossorigin="anonymous"></script>
+    <meta name="google-site-verification" content="ca-pub-9364231981895017" />
+    <meta name="google-adsense-account" content="ca-pub-9364231981895017">
+    <title>Cash Op - Spin Wheel</title>
+    <style>
+        .spin-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .spin-wheel {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            position: relative;
+            background: conic-gradient(
+                #ff6b6b 0deg 45deg,
+                #4ecdc4 45deg 90deg,
+                #45b7d1 90deg 135deg,
+                #96ceb4 135deg 180deg,
+                #ffeaa7 180deg 225deg,
+                #dda0dd 225deg 270deg,
+                #98d8c8 270deg 315deg,
+                #f7dc6f 315deg 360deg
+            );
+            border: 5px solid #333;
+            margin: 20px 0;
+            transition: transform 3s ease-out;
+        }
+
+        .spin-wheel::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 20px solid #333;
+        }
+
+        .spin-btn {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .spin-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .spin-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .prize-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .spin-instructions {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .ad-container {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 320px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <button onclick="goBack()" class="icon-btn back-btn">
+                    <span class="material-icons">arrow_back</span>
+                </button>
+                <h1 class="app-title">Spin Wheel</h1>
+                <div></div>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <div class="spin-section">
+                <p class="spin-instructions">Spin the wheel to win prizes!</p>
+                <div class="spin-wheel" id="spinWheel"></div>
+                <button class="spin-btn" id="spinBtn" onclick="spinWheel()">Spin Now</button>
+
+                <div class="result-section" id="resultSection" style="display: none;">
+                    <p class="prize-display" id="prizeDisplay"></p>
+                    <button class="claim-btn" onclick="claimPrize()">Claim Prize</button>
+                </div>
+
+                <!-- Ad Banner -->
+                <div class="ad-container">
+                    <ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client="ca-pub-9364231981895017"
+                         data-ad-slot="YOUR_AD_SLOT_ID"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
+                    <script>
+                         (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKW4dfNxG_7F-K8jO31i2aS8eI1Vv-SYE",
+            authDomain: "cash-op-web.firebaseapp.com",
+            projectId: "cash-op-web",
+            storageBucket: "cash-op-web.firebasestorage.app",
+            messagingSenderId: "182361117624",
+            appId: "1:182361117624:web:4a38a21b441acdb8c1b54d"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'login_signup.html';
+            } else {
+                showAd();
+                checkDailySpin(user.uid);
+            }
+        });
+
+        const spinWheel = document.getElementById('spinWheel');
+        const spinBtn = document.getElementById('spinBtn');
+        const resultSection = document.getElementById('resultSection');
+        const prizeDisplay = document.getElementById('prizeDisplay');
+
+        let isSpinning = false;
+        let currentPrize = 0;
+
+        const prizes = [
+            { amount: 0.001, text: '₹0.001', probability: 30 },
+            { amount: 0.005, text: '₹0.005', probability: 25 },
+            { amount: 0.01, text: '₹0.01', probability: 20 },
+            { amount: 0.02, text: '₹0.02', probability: 10 },
+            { amount: 0.05, text: '₹0.05', probability: 8 },
+            { amount: 0.1, text: '₹0.1', probability: 5 },
+            { amount: 0.2, text: '₹0.2', probability: 2 }
+        ];
+
+        function showAd() {
+            // Simulate watching an ad
+            alert('Please watch this short ad to continue... (Simulated ad - click OK to proceed)');
+        }
+
+        function checkDailySpin(uid) {
+            const today = new Date().toDateString();
+
+            // Check Firestore for last spin
+            db.collection('users').doc(uid).get().then((doc) => {
+                if (doc.exists) {
+                    const lastSpin = doc.data().lastSpin;
+                    if (lastSpin === today) {
+                        // Already spun today
+                        spinBtn.disabled = true;
+                        spinBtn.textContent = 'Already spun today';
+                        document.querySelector('.spin-instructions').textContent = 'You can spin again tomorrow!';
+                    }
+                }
+            }).catch((error) => {
+                console.error('Error checking daily spin:', error);
+            });
+        }
+
+        function getRandomPrize() {
+            const random = Math.random() * 100;
+            let cumulativeProbability = 0;
+
+            for (const prize of prizes) {
+                cumulativeProbability += prize.probability;
+                if (random <= cumulativeProbability) {
+                    return prize;
+                }
+            }
+
+            return prizes[0]; // Fallback to smallest prize
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+
+            isSpinning = true;
+            spinBtn.disabled = true;
+            resultSection.style.display = 'none';
+
+            // Get random prize
+            const prize = getRandomPrize();
+            currentPrize = prize.amount;
+
+            // Calculate rotation (random + full rotations)
+            const rotations = 5 + Math.random() * 5; // 5-10 full rotations
+            const angle = Math.random() * 360; // Random final position
+            const totalRotation = rotations * 360 + angle;
+
+            spinWheel.style.transform = `rotate(${totalRotation}deg)`;
+
+            setTimeout(() => {
+                isSpinning = false;
+                resultSection.style.display = 'block';
+                prizeDisplay.textContent = `You won ${prize.text}!`;
+                updateBalance(currentPrize);
+            }, 3000);
+        }
+
+        function updateBalance(prizeAmount) {
+            const uid = auth.currentUser.uid;
+            const today = new Date().toDateString();
+
+            const userRef = db.collection('users').doc(uid);
+            userRef.get().then((doc) => {
+                let currentBalance = 0;
+                if (doc.exists) {
+                    currentBalance = doc.data().balance || 0;
+                } else {
+                    // Create user document if it doesn't exist
+                    return userRef.set({
+                        balance: 0,
+                        email: auth.currentUser.email,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(() => {
+                        return userRef.get();
+                    });
+                }
+                return Promise.resolve(doc);
+            }).then((doc) => {
+                const currentBalance = doc.data().balance || 0;
+                const newBalance = currentBalance + prizeAmount;
+
+                // Update balance and last spin
+                return userRef.update({
+                    lastSpin: today,
+                    balance: newBalance
+                });
+            }).then(() => {
+                console.log('Prize added to balance successfully');
+                alert(`Congratulations! ₹${prizeAmount} has been added to your balance!`);
+            }).catch((error) => {
+                console.error('Error updating balance:', error);
+                alert('Error updating balance. Please try again.');
+            });
+        }
+
+        function claimPrize() {
+            // Balance is already updated, redirect to home
+            window.location.href = 'home.html';
+        }
+
+        function goBack() {
+            window.location.href = 'home.html';
+        }
+
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
