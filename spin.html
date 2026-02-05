@@ -98,6 +98,18 @@
             width: 100%;
             max-width: 320px;
         }
+
+        .prize-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: 0 0;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -115,7 +127,16 @@
         <main class="app-main">
             <div class="spin-section">
                 <p class="spin-instructions">Spin the wheel to win prizes!</p>
-                <div class="spin-wheel" id="spinWheel"></div>
+                <div class="spin-wheel" id="spinWheel">
+                    <div class="prize-label" style="transform: rotate(22.5deg) translateX(120px) rotate(-22.5deg);">₹0.01</div>
+                    <div class="prize-label" style="transform: rotate(67.5deg) translateX(120px) rotate(-67.5deg);">₹0.02</div>
+                    <div class="prize-label" style="transform: rotate(112.5deg) translateX(120px) rotate(-112.5deg);">₹0.03</div>
+                    <div class="prize-label" style="transform: rotate(157.5deg) translateX(120px) rotate(-157.5deg);">₹0.04</div>
+                    <div class="prize-label" style="transform: rotate(202.5deg) translateX(120px) rotate(-202.5deg);">₹0.05</div>
+                    <div class="prize-label" style="transform: rotate(247.5deg) translateX(120px) rotate(-247.5deg);">₹10</div>
+                    <div class="prize-label" style="transform: rotate(292.5deg) translateX(120px) rotate(-292.5deg);">₹99</div>
+                    <div class="prize-label" style="transform: rotate(337.5deg) translateX(120px) rotate(-337.5deg);">₹0.001</div>
+                </div>
                 <button class="spin-btn" id="spinBtn" onclick="spinWheel()">Spin Now</button>
 
                 <div class="result-section" id="resultSection" style="display: none;">
@@ -162,12 +183,11 @@
             if (!user) {
                 window.location.href = 'login_signup.html';
             } else {
-                showAd();
                 checkDailySpin(user.uid);
             }
         });
 
-        const spinWheel = document.getElementById('spinWheel');
+        const wheel = document.getElementById('spinWheel');
         const spinBtn = document.getElementById('spinBtn');
         const resultSection = document.getElementById('resultSection');
         const prizeDisplay = document.getElementById('prizeDisplay');
@@ -200,8 +220,9 @@
                     const lastSpin = doc.data().lastSpin;
                     if (lastSpin === today) {
                         // Already spun today
-                        spinBtn.disabled = true;
-                        spinBtn.textContent = 'Already spun today';
+                        spinBtn.disabled = false;
+                        spinBtn.textContent = 'Home Page';
+                        spinBtn.onclick = goBack;
                         document.querySelector('.spin-instructions').textContent = 'You can spin again tomorrow!';
                     }
                 }
@@ -227,6 +248,9 @@
         function spinWheel() {
             if (isSpinning) return;
 
+            // Show ad before spinning
+            showAd();
+
             isSpinning = true;
             spinBtn.disabled = true;
             resultSection.style.display = 'none';
@@ -235,12 +259,15 @@
             const prize = getRandomPrize();
             currentPrize = prize.amount;
 
-            // Calculate rotation (random + full rotations)
+            // Find the index of the prize
+            const prizeIndex = prizes.findIndex(p => p.amount === prize.amount);
+
+            // Calculate rotation to stop at the prize (centered)
             const rotations = 5 + Math.random() * 5; // 5-10 full rotations
-            const angle = Math.random() * 360; // Random final position
+            const angle = (prizeIndex * 45) + 22.5; // Center on the prize
             const totalRotation = rotations * 360 + angle;
 
-            spinWheel.style.transform = `rotate(${totalRotation}deg)`;
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
 
             setTimeout(() => {
                 isSpinning = false;
@@ -282,6 +309,10 @@
             }).then(() => {
                 console.log('Prize added to balance successfully');
                 alert(`Congratulations! ₹${prizeAmount} has been added to your balance!`);
+                // Change button to Home Page after successful update
+                spinBtn.disabled = false;
+                spinBtn.textContent = 'Home Page';
+                spinBtn.onclick = goBack;
             }).catch((error) => {
                 console.error('Error updating balance:', error);
                 alert('Error updating balance. Please try again.');

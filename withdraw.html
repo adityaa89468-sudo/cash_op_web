@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="google-site-verification" content="ca-pub-9364231981895017" />
+    <meta name="google-adsense-account" content="ca-pub-9364231981895017">
+    <title>Cash Op - Withdraw</title>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <button onclick="goBack()" class="icon-btn back-btn">
+                    <span class="material-icons">arrow_back</span>
+                </button>
+                <h1 class="app-title">Withdraw Coins</h1>
+                <div></div>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <div class="withdraw-section">
+                <div class="balance-card">
+                    <div class="balance-icon">
+                        <span class="material-icons">account_balance_wallet</span>
+                    </div>
+                    <div class="balance-info">
+                        <p class="balance-label">Available Balance</p>
+                        <p class="balance-amount">₹0.00</p>
+                    </div>
+                </div>
+
+                <div class="withdraw-form">
+                    <h2 class="section-title">Withdraw Funds</h2>
+                    <form id="withdrawForm">
+                        <div class="input-group">
+                            <label for="amount">Amount to Withdraw (₹)</label>
+                            <input type="number" id="amount" placeholder="Enter amount" min="10" step="0.01" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="payment-method">Payment Method</label>
+                            <select id="payment-method" required>
+                                <option value="">Select Payment Method</option>
+                                <option value="upi">UPI</option>
+                                <option value="bank">Bank Transfer</option>
+                                <option value="paypal">PayPal</option>
+                            </select>
+                        </div>
+                        <div class="input-group" id="upi-group" style="display: none;">
+                            <label for="upi-id">UPI ID</label>
+                            <input type="text" id="upi-id" placeholder="Enter UPI ID">
+                        </div>
+                        <div class="input-group" id="bank-group" style="display: none;">
+                            <label for="account-number">Account Number</label>
+                            <input type="text" id="account-number" placeholder="Enter Account Number">
+                            <label for="ifsc">IFSC Code</label>
+                            <input type="text" id="ifsc" placeholder="Enter IFSC Code">
+                        </div>
+                        <div class="input-group" id="paypal-group" style="display: none;">
+                            <label for="paypal-email">PayPal Email</label>
+                            <input type="email" id="paypal-email" placeholder="Enter PayPal Email">
+                        </div>
+                        <button type="submit" class="withdraw-btn">Request Withdrawal</button>
+                    </form>
+                </div>
+
+                <div class="withdraw-history">
+                    <h2 class="section-title">Withdrawal History</h2>
+                    <div id="history-list">
+                        <p>No withdrawal history yet.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKW4dfNxG_7F-K8jO31i2aS8eI1Vv-SYE",
+            authDomain: "cash-op-web.firebaseapp.com",
+            projectId: "cash-op-web",
+            storageBucket: "cash-op-web.firebasestorage.app",
+            messagingSenderId: "182361117624",
+            appId: "1:182361117624:web:4a38a21b441acdb8c1b54d"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                loadUserBalance(user.uid);
+                loadWithdrawalHistory(user.uid);
+            } else {
+                window.location.href = 'login_signup.html';
+            }
+        });
+
+        async function loadUserBalance(uid) {
+            try {
+                const userDoc = await db.collection('users').doc(uid).get();
+                if (userDoc.exists) {
+                    const balance = userDoc.data().balance || 0;
+                    document.querySelector('.balance-amount').textContent = `₹${balance.toFixed(3)}`;
+                }
+            } catch (error) {
+                console.error('Error loading balance:', error);
+            }
+        }
+
+        async function loadWithdrawalHistory(uid) {
+            try {
+                const historySnapshot = await db.collection('withdrawals').where('userId', '==', uid).orderBy('timestamp', 'desc').get();
+                const historyList = document.getElementById('history-list');
+                if (historySnapshot.empty) {
+                    historyList.innerHTML = '<p>No withdrawal history yet.</p>';
+                } else {
+                    historyList.innerHTML = '';
+                    historySnapshot.forEach(doc => {
+                        const withdrawal = doc.data();
+                        const historyItem = document.createElement('div');
+                        historyItem.className = 'history-item';
+                        historyItem.innerHTML = `
+                            <p>Amount: ₹${withdrawal.amount.toFixed(2)}</p>
+                            <p>Method: ${withdrawal.method}</p>
+                            <p>Status: ${withdrawal.status}</p>
+                            <p>Date: ${new Date(withdrawal.timestamp.toDate()).toLocaleDateString()}</p>
+                        `;
+                        historyList.appendChild(historyItem);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
+        }
+
+        document.getElementById('payment-method').addEventListener('change', function() {
+            const method = this.value;
+            document.getElementById('upi-group').style.display = method === 'upi' ? 'block' : 'none';
+            document.getElementById('bank-group').style.display = method === 'bank' ? 'block' : 'none';
+            document.getElementById('paypal-group').style.display = method === 'paypal' ? 'block' : 'none';
+        });
+
+        document.getElementById('withdrawForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const amount = parseFloat(document.getElementById('amount').value);
+            const method = document.getElementById('payment-method').value;
+
+            if (!amount || amount < 10) {
+                alert('Minimum withdrawal amount is ₹10');
+                return;
+            }
+
+            const user = auth.currentUser;
+            if (!user) return;
+
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                const balance = userDoc.data().balance || 0;
+
+                if (amount > balance) {
+                    alert('Insufficient balance');
+                    return;
+                }
+
+                // Create withdrawal request
+                await db.collection('withdrawals').add({
+                    userId: user.uid,
+                    amount: amount,
+                    method: method,
+                    status: 'pending',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Update user balance
+                await db.collection('users').doc(user.uid).update({
+                    balance: balance - amount
+                });
+
+                alert('Withdrawal request submitted successfully!');
+                loadUserBalance(user.uid);
+                loadWithdrawalHistory(user.uid);
+                document.getElementById('withdrawForm').reset();
+            } catch (error) {
+                console.error('Error processing withdrawal:', error);
+                alert('Error processing withdrawal. Please try again.');
+            }
+        });
+
+        function goBack() {
+            window.location.href = 'home.html';
+        }
+
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

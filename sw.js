@@ -1,5 +1,5 @@
 // Service Worker for PWA
-const CACHE_NAME = 'cash-op-v1';
+const CACHE_NAME = 'cash-op-v2';
 const urlsToCache = [
   '/',
   '/login_signup.html',
@@ -15,6 +15,7 @@ const urlsToCache = [
 
 // Install event - cache resources
 self.addEventListener('install', event => {
+  self.skipWaiting(); // Force the new service worker to activate immediately
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -36,6 +37,7 @@ self.addEventListener('fetch', event => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', event => {
+  self.clients.claim(); // Take control of all open clients immediately
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(

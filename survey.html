@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9364231981895017" crossorigin="anonymous"></script>
+    <meta name="google-site-verification" content="ca-pub-9364231981895017" />
+    <meta name="google-adsense-account" content="ca-pub-9364231981895017">
+    <title>Cash Op - Survey Filling</title>
+    <style>
+        .survey-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .survey-instructions {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .fill-btn {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .fill-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .claim-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .claim-input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            margin: 10px 0;
+            width: 200px;
+        }
+
+        .claim-btn {
+            background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .claim-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .ad-container {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 320px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <button onclick="goBack()" class="icon-btn back-btn">
+                    <span class="material-icons">arrow_back</span>
+                </button>
+                <h1 class="app-title">Survey Filling</h1>
+                <div></div>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <div id="fullscreen" style="width: 100%; min-height: 600px;"></div>
+
+            <!-- Ad Banner -->
+            <div class="ad-container">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-9364231981895017"
+                     data-ad-slot="YOUR_AD_SLOT_ID"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKW4dfNxG_7F-K8jO31i2aS8eI1Vv-SYE",
+            authDomain: "cash-op-web.firebaseapp.com",
+            projectId: "cash-op-web",
+            storageBucket: "cash-op-web.firebasestorage.app",
+            messagingSenderId: "182361117624",
+            appId: "1:182361117624:web:4a38a21b441acdb8c1b54d"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'login_signup.html';
+            }
+        });
+
+        function goBack() {
+            window.location.href = 'home.html';
+        }
+
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // CPX Research Configuration
+        const script1 = {
+            div_id: "fullscreen",
+            theme_style: 1,
+            order_by: 2,
+            limit_surveys: 7
+        };
+
+        const config = {
+            general_config: {
+                app_id: 31228,
+                ext_user_id: auth.currentUser ? auth.currentUser.uid : "guest",
+                email: auth.currentUser ? auth.currentUser.email : "",
+                username: "",
+                secure_hash: "",
+                subid_1: "",
+                subid_2: "",
+            },
+            style_config: {
+                text_color: "#2b2b2b",
+                survey_box: {
+                    topbar_background_color: "#ffaf20",
+                    box_background_color: "white",
+                    rounded_borders: true,
+                    stars_filled: "black",
+                },
+            },
+            script_config: [script1],
+            debug: false,
+            useIFrame: true,
+            iFramePosition: 1,
+            functions: {
+                no_surveys_available: () => {
+                    console.log("no surveys available");
+                },
+                count_new_surveys: (countsurveys) => {
+                    console.log("count surveys:", countsurveys);
+                },
+                get_all_surveys: (surveys) => {
+                    console.log("get all surveys:", surveys);
+                },
+                get_transaction: (transactions) => {
+                    console.log("transaction:", transactions);
+                }
+            }
+        };
+
+        window.config = config;
+    </script>
+
+    <script type="text/javascript" src="https://cdn.cpx-research.com/assets/js/script_tag_v2.0.js"></script>
+</body>
+</html>

@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="manifest" href="manifest.json">
-    <meta name="google-site-verification" content="ca-pub-9364231981895017" />
     <meta name="google-adsense-account" content="ca-pub-9364231981895017">
     <title>Cash Op - Home</title>
 </head>
@@ -26,7 +25,7 @@
         
         <main class="app-main">
             <div class="balance-section">
-                <div class="balance-card">
+                <div class="balance-card" onclick="window.location.href='withdraw.html'" style="cursor: pointer;">
                     <div class="balance-icon">
                         <span class="material-icons">account_balance_wallet</span>
                     </div>
@@ -76,11 +75,11 @@
                         </div>
                         <p class="earn-label">Games</p>
                     </div>
-                    <div class="earn-item" onclick="startTask('apps')">
+                    <div class="earn-item" onclick="window.location.href='withdraw.html'">
                         <div class="earn-icon">
-                            <span class="material-icons">get_app</span>
+                            <span class="material-icons">payment</span>
                         </div>
-                        <p class="earn-label">Apps</p>
+                        <p class="earn-label">Withdraw</p>
                     </div>
                     <div class="earn-item" onclick="startTask('referral')">
                         <div class="earn-icon">
@@ -91,6 +90,13 @@
                 </div>
             </div>
         </main>
+
+        <footer class="app-footer">
+            <div class="footer-links">
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+            </div>
+        </footer>
     </div>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -113,11 +119,16 @@
         const db = firebase.firestore();
 
         auth.onAuthStateChanged((user) => {
-            if (user) {
+            if (user) { 
                 const name = user.email.split('@')[0];
                 document.getElementById('user-greeting').textContent = `Hi ${name}`;
                 loadUserBalance(user.uid);
-                
+
+                // Add click event listener to balance card
+                document.querySelector('.balance-card').addEventListener('click', () => {
+                    window.location.href = 'withdraw.html';
+                });
+
                 // Refresh balance when page becomes visible (user returns from other pages)
                 document.addEventListener('visibilitychange', () => {
                     if (!document.hidden && user) {
@@ -162,6 +173,8 @@
                 window.location.href = 'spin.html';
             } else if (taskType === 'captcha') {
                 window.location.href = 'captcha.html';
+            } else if (taskType === 'survey') {
+                window.location.href = 'survey.html';
             } else {
                 alert(`${taskType.charAt(0).toUpperCase() + taskType.slice(1)} feature coming soon!`);
             }
