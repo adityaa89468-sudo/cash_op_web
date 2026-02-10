@@ -12,8 +12,20 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 </head>
 <body>
+    <div class="welcome-section">
+        <div class="logo-container">
+            <div class="logo">
+                <span class="material-icons logo-icon">account_balance_wallet</span>
+            </div>
+            <h1 class="brand-name">Cash Op</h1>
+            <p class="tagline">Earn Money Online with Fun Activities</p>
+        </div>
+    </div>
     <div class="container">
-        <h2 id="form-title">Login</h2>
+        <div class="form-header">
+            <h2 id="form-title">Welcome Back!</h2>
+            <p class="form-subtitle">Sign in to continue earning</p>
+        </div>
         <div class="form-toggle">
             <button id="login-toggle" class="active">Login</button>
             <button id="signup-toggle">Sign Up</button>
@@ -34,7 +46,10 @@
             <button type="submit" id="submit-btn">Login</button>
         </form>
         <div class="divider">or</div>
-        <button id="google-signin-btn" class="google-btn"><img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" style="width: 20px; height: 20px; margin-right: 8px;">sign in</button>
+        <button id="google-signin-btn" class="google-btn">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" style="width: 20px; height: 20px;">
+            Continue with Google
+        </button>
         <div id="message" class="message"></div>
     </div>
     <script>

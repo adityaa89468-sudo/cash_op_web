@@ -2,21 +2,86 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
     margin: 0;
+    padding: 0;
+    min-height: 100vh;
     color: #333;
+    overflow-x: hidden;
+}
+
+.welcome-section {
+    text-align: center;
+    padding: 60px 20px 40px;
+    color: white;
+}
+
+.logo-container {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.logo {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.logo-icon {
+    font-size: 40px;
+    color: white;
+}
+
+.brand-name {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: -1px;
+}
+
+.tagline {
+    font-size: 18px;
+    margin: 0;
+    opacity: 0.9;
+    font-weight: 300;
 }
 
 .container {
     background: white;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    padding: 40px 30px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     width: 100%;
+    max-width: 400px;
+    margin: -30px auto 0;
+    position: relative;
     text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.form-header {
+    margin-bottom: 30px;
+}
+
+.form-header h2 {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: #333;
+}
+
+.form-subtitle {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
+    font-weight: 400;
 }
 
 h2 {
