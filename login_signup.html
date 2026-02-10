@@ -34,7 +34,7 @@
             <button type="submit" id="submit-btn">Login</button>
         </form>
         <div class="divider">or</div>
-        <button id="google-signin-btn" class="google-btn">Sign in with Google</button>
+        <button id="google-signin-btn" class="google-btn"><img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" style="width: 20px; height: 20px; margin-right: 8px;">sign in</button>
         <div id="message" class="message"></div>
     </div>
     <script>
@@ -67,6 +67,7 @@
         const messageDiv = document.getElementById('message');
 
         let isLogin = true;
+        let isSubmitting = false;
 
         loginToggle.addEventListener('click', function() {
             isLogin = true;
@@ -92,6 +93,9 @@
 
         document.getElementById('authForm').addEventListener('submit', function(event) {
             event.preventDefault();
+            if (isSubmitting) return;
+            isSubmitting = true;
+            submitBtn.disabled = true;
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
@@ -101,6 +105,8 @@
             if (!email || !password) {
                 messageDiv.textContent = 'Please fill in email and password.';
                 messageDiv.className = 'message error';
+                isSubmitting = false;
+                submitBtn.disabled = false;
                 return;
             }
 
