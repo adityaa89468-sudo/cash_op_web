@@ -23,6 +23,10 @@
         "destination": "/ads.txt"
       },
       {
+        "source": "/googlef0adf5ad3dbb3346.html",
+        "destination": "/googlef0adf5ad3dbb3346.html"
+      },
+      {
         "source": "**",
         "destination": "/login_signup.html"
       }

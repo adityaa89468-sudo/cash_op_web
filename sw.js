@@ -1,5 +1,5 @@
 // Service Worker for PWA
-const CACHE_NAME = 'cash-op-v2';
+const CACHE_NAME = 'cash-op-v3';
 const urlsToCache = [
   '/',
   '/login_signup.html',

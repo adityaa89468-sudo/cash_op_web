@@ -33,6 +33,8 @@
             </div>
             <button type="submit" id="submit-btn">Login</button>
         </form>
+        <div class="divider">or</div>
+        <button id="google-signin-btn" class="google-btn">Sign in with Google</button>
         <div id="message" class="message"></div>
     </div>
     <script>
@@ -52,6 +54,10 @@
         console.log('Firebase app initialized');
         const auth = firebase.auth();
         console.log('Firebase auth initialized');
+
+        // Initialize Google Auth Provider
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
+        console.log('Google Auth Provider initialized');
 
         const loginToggle = document.getElementById('login-toggle');
         const signupToggle = document.getElementById('signup-toggle');
@@ -133,6 +139,22 @@
                         messageDiv.className = 'message error';
                     });
             }
+        });
+
+        // Google Sign-In Handler
+        document.getElementById('google-signin-btn').addEventListener('click', function() {
+            messageDiv.textContent = 'Processing...';
+            messageDiv.className = 'message loading';
+            auth.signInWithPopup(googleProvider)
+                .then((result) => {
+                    console.log('Google sign-in successful:', result.user);
+                    window.location.href = 'home.html';
+                })
+                .catch((error) => {
+                    console.log('Google sign-in error:', error.code, error.message);
+                    messageDiv.textContent = error.message;
+                    messageDiv.className = 'message error';
+                });
         });
 
         // Register service worker for PWA
