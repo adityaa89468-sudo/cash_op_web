@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="google-adsense-account" content="ca-pub-9364231981895017">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9364231981895017"
+     crossorigin="anonymous"></script>
+    <title>Cash Op - Games</title>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="app-title">Cash Op</h1>
+                <div class="user-menu">
+                    <span id="user-greeting">Hi User</span>
+                    <button onclick="logout()" class="icon-btn">
+                        <span class="material-icons">logout</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <div class="balance-section">
+                <div class="balance-card" onclick="window.location.href='withdraw.html'" style="cursor: pointer;">
+                    <div class="balance-icon">
+                        <span class="material-icons">account_balance_wallet</span>
+                    </div>
+                    <div class="balance-info">
+                        <p class="balance-label">Total Balance</p>
+                        <p class="balance-amount">₹0.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="earn-section">
+                <h2 class="section-title">Games - Earn by Playing</h2>
+                <div class="games-container">
+                    <div class="games-info">
+                        <p>Complete offers below to earn money. Higher value offers give more rewards!</p>
+                    </div>
+                    <div id="bitlab-offerwall" class="offerwall-container">
+                        <!-- BitLab Games Offerwall will be loaded here -->
+                        <div class="loading">Loading games...</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <div class="footer-links">
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKW4dfNxG_7F-K8jO31i2aS8eI1Vv-SYE",
+            authDomain: "cash-op-web.firebaseapp.com",
+            projectId: "cash-op-web",
+            storageBucket: "cash-op-web.firebasestorage.app",
+            messagingSenderId: "182361117624",
+            appId: "1:182361117624:web:4a38a21b441acdb8c1b54d"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                const name = user.email.split('@')[0];
+                document.getElementById('user-greeting').textContent = `Hi ${name}`;
+                loadUserBalance(user.uid);
+                loadBitLabOfferwall(user.uid);
+
+                // Add click event listener to balance card
+                document.querySelector('.balance-card').addEventListener('click', () => {
+                    window.location.href = 'withdraw.html';
+                });
+
+                // Refresh balance when page becomes visible
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden && user) {
+                        loadUserBalance(user.uid);
+                    }
+                });
+            } else {
+                window.location.href = 'login_signup.html';
+            }
+        });
+
+        async function loadUserBalance(uid) {
+            try {
+                const userDoc = await db.collection('users').doc(uid).get();
+                if (userDoc.exists) {
+                    const balance = userDoc.data().balance || 0;
+                    document.querySelector('.balance-amount').textContent = `₹${balance.toFixed(3)}`;
+                } else {
+                    await db.collection('users').doc(uid).set({
+                        balance: 0,
+                        email: auth.currentUser.email,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    document.querySelector('.balance-amount').textContent = '₹0.000';
+                }
+            } catch (error) {
+                console.error('Error loading balance:', error);
+            }
+        }
+
+        function loadBitLabOfferwall(userId) {
+            const offerwallContainer = document.getElementById('bitlab-offerwall');
+
+            // BitLab Games Offerwall Integration
+            const bitlabConfig = {
+                appId: '5eceee15-e21e-4544-9f06-7952d0a01cff', // BitLab App ID
+                userId: userId,
+                currency: 'INR'
+            };
+
+            // Create iframe for BitLab offerwall
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://web.bitlabs.ai/?appid=${bitlabConfig.appId}&uid=${bitlabConfig.userId}&currency=${bitlabConfig.currency}`;
+            iframe.width = '100%';
+            iframe.height = '600';
+            iframe.frameBorder = '0';
+            iframe.style.border = 'none';
+            iframe.style.borderRadius = '8px';
+
+            // Clear loading message and add iframe
+            offerwallContainer.innerHTML = '';
+            offerwallContainer.appendChild(iframe);
+
+            // Listen for messages from BitLab iframe (for reward callbacks)
+            window.addEventListener('message', function(event) {
+                if (event.origin !== 'https://web.bitlabs.ai') return;
+
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'reward' && data.userId === userId) {
+                        // Handle reward - add to user's balance
+                        addRewardToBalance(data.reward);
+                    }
+                } catch (e) {
+                    console.log('Message from BitLab:', event.data);
+                }
+            });
+        }
+
+        async function addRewardToBalance(rewardAmount) {
+            if (!currentUser) return;
+
+            try {
+                const userRef = db.collection('users').doc(currentUser.uid);
+                const userDoc = await userRef.get();
+                const currentBalance = userDoc.data().balance || 0;
+                const newBalance = currentBalance + parseFloat(rewardAmount);
+
+                await userRef.update({
+                    balance: newBalance,
+                    lastReward: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Update UI
+                document.querySelector('.balance-amount').textContent = `₹${newBalance.toFixed(3)}`;
+
+                // Show success message
+                showMessage(`Earned ₹${rewardAmount}!`, 'success');
+            } catch (error) {
+                console.error('Error adding reward:', error);
+                showMessage('Error processing reward. Please try again.', 'error');
+            }
+        }
+
+        function showMessage(message, type) {
+            // Remove existing message
+            const existingMessage = document.querySelector('.message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+
+            // Create new message
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+
+            // Add to page
+            document.querySelector('.app-main').prepend(messageDiv);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 5000);
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                window.location.href = 'login_signup.html';
+            });
+        }
+
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
